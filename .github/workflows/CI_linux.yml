@@ -27,8 +27,8 @@ jobs:
     run: cmake --build ${{github.workspace}}/hello_world_application/build
 
  build_Windows:
-  
- runs-on: windows-latest
+
+  runs-on: windows-latest
 
   steps:
   - uses: actions/checkout@v3
