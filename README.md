@@ -1,3 +1,67 @@
+## ТиМП для невдуплёнышей [1]
+
+В этой лабе мы научимся пользоваться **GitHub Actions**, прикольной штукой, позволяющей прогонять определённые инструкции при обновлении репозитория. Это удобно, например, для тестирования — изменил что-то, залил на GitHub, и новая версия сразу прогоняется через тесты.
+
+## Теория
+
+Мы **не используем** Travis CI! Лабы старые просто. Туториал игнорьте.
+
+**Инструкции** представляют собой файлы формата `.yml`
+
+Размещать их необходимо в директории `.github/workflows`
+
+В ней можно создать несколько файлов yml для разных задач.
+
+Инструкции запускаются на серверах гитхаба.
+
+**Триггер** — условие, при котором запускается процесс.
+
+`${{github.workspace}}` — переменная, в которой хранится путь до рабочей директории на удалённом сервере гитхаба. Все пути следует писать относительно неё.
+
+**Важно:** yml очень придирчив к табуляции. Никаких табов, только пробелы.
+
+**Структура** файла yml:
+
+```yaml
+name: CMake
+# Задаёт имя процесса
+
+on:
+# Задаёт список триггеров
+ push:
+  branches: [main]
+ pull_request:
+  branches: [main]
+# В данном случае процесс запустится при push и pull-request в ветку main
+
+jobs: 
+# Задаёт список задач
+  build_Linux:
+  # Название задачи
+
+  runs-on: ubuntu-latest
+  # Система, на которой будет запущена задача
+  # В данном случае это будет последняя версия Ubuntu
+
+  steps:
+  # Шаги задачи
+  - uses: actions/checkout@v3
+  # Включает поддержку GitHub Actions, вроде как
+
+  - name: Configure App
+    # Имя шага
+    run: cmake ${{github.workspace}}/project -B ${{github.workspace}}/project/build
+    # Команда
+
+  - name: Build App
+    run: cmake --build ${{github.workspace}}/app/build
+```
+
+При пушах и пулл-реквестах в ветку `main` сервис GitHub Actions прогонит на своих серверах заданные нами команды по сборке проекта и поделится с нами результатами (успешно или нет).
+
+В разделе **Actions** на странице репозитория можно подробно ознакомиться с тем, как всё прошло.
+
+
 ## Laboratory work IV
 
 Данная лабораторная работа посвещена изучению систем непрерывной интеграции на примере сервиса **Travis CI**
@@ -18,6 +82,8 @@ $ open https://travis-ci.org
 - [ ] 8. Составить отчет и отправить ссылку личным сообщением в **Slack**
 
 ## Tutorial
+
+> Это написано для Travis CI, так что **игнорим Tutorial**
 
 ```sh
 $ export GITHUB_USERNAME=<имя_пользователя>
@@ -129,6 +195,77 @@ $ gist REPORT.md
 Сейчас вам требуется настроить систему непрерывной интеграции для библиотек и приложений, с которыми вы работали в [прошлый раз](https://github.com/tp-labs/lab03#Homework). Настройте сборочные процедуры на различных платформах:
 * используйте [TravisCI](https://travis-ci.com/) для сборки на операционной системе **Linux** с использованием компиляторов **gcc** и **clang**;
 * используйте [AppVeyor](https://www.appveyor.com/) для сборки на операционной системе **Windows**.
+
+> - используйте GitHub Actions и для того, и для того)
+
+> Клонируем репозиторий третьей лабы:
+> ```sh
+> $ git clone <ссылка на репу третьей лабы>
+> $ cd <имя репы третьей лабы>
+> $ git remote remove origin
+> $ git remote add origin <ссылка на репу четвёртой лабы>
+> ```
+>
+> Создаём директорию `.github/workflows` в директории лабы
+>
+> В ней создаём файл `CI.yml`:
+>
+> ```yaml
+> name: CMake
+> 
+> on:
+>  push:
+>   branches: [main]
+>  pull_request:
+>   branches: [main]
+> 
+> jobs: 
+>  build_Linux:
+> 
+>   runs-on: ubuntu-latest
+> 
+>   steps:
+>   - uses: actions/checkout@v3
+> 
+>   - name: Configure Solver
+>     run: cmake ${{github.workspace}}/solver_application/ -B ${{github.workspace}}/solver_application/build
+> 
+>   - name: Build Solver
+>     run: cmake --build ${{github.workspace}}/solver_application/build
+> 
+>   - name: Configure HelloWorld
+>     run: cmake ${{github.workspace}}/hello_world_application/ -B ${{github.workspace}}/hello_world_application/build
+> 
+>   - name: Build HelloWorld
+>     run: cmake --build ${{github.workspace}}/hello_world_application/build
+> 
+>  build_Windows:
+> 
+>  runs-on: windows-latest
+> 
+>   steps:
+>   - uses: actions/checkout@v3
+> 
+>   - name: Configure Solver
+>     run: cmake ${{github.workspace}}/solver_application/ -B ${{github.workspace}}/solver_application/build
+> 
+>   - name: Build Solver
+>     run: cmake --build ${{github.workspace}}/solver_application/build
+> 
+>   - name: Configure HelloWorld
+>     run: cmake ${{github.workspace}}/hello_world_application/ -B ${{github.workspace}}/hello_world_application/build
+> 
+>   - name: Build HelloWorld
+>     run: cmake --build ${{github.workspace}}/hello_world_application/build
+> ```
+>
+> Добавляем файл в проект и пушим на гитхаб:
+> ```sh
+> $ git add .github
+> $ git commit -m "added CI.yml"
+> $ git push origin main
+> ```
+> Заходим на гитхаб, во вкладку **Actions**, и проверяем, что процесс выполнен успешно.
 
 ## Links
 
